@@ -1,0 +1,108 @@
+/*------------------------------------------------------------------------------
+Divisions for SPA
+-----------------------------------------------------------------------------*/
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f0f0f0;
+}
+
+.container {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 300px;
+}
+
+.form {
+  display: none;
+}
+
+.form.active {
+  display: block;
+}
+
+.form input[type="text"],
+.form input[type="password"],
+.form input[type="email"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.form input[type="submit"] {
+  width: 100%;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.switch-link {
+  text-decoration: underline;
+  cursor: pointer;
+}
+/*------------------------------------------------------------------------------
+Styles for all screen widths
+-----------------------------------------------------------------------------*/
+
+body {
+    background-color: #FFF;
+    font-family: Verdana, "Geneva", sans-serif;
+    color: #333;
+    font-size: 1rem;
+    line-height: 20px;
+}
+
+/*------------------------------------------------------------------------------
+Small Screen, Vertical
+-----------------------------------------------------------------------------*/
+@media (max-width: 35em) {
+  #wrapper {
+    grid-template-columns: 3fr 6fr;
+    grid-template-areas: 
+      "header header"
+      "aside  main"
+      "footer  footer";
+  }
+}
+img { max-width: 100%; }
+
+/*------------------------------------------------------------------------------
+Tablet/landscape
+-----------------------------------------------------------------------------*/
+@media (min-width: 50em) {
+  #wrapper {
+    grid-template-columns: 3fr 6fr;
+    grid-template-areas: 
+      "header header"
+      "aside  main"
+      "footer  footer";
+  }
+}
+
+/*------------------------------------------------------------------------------
+Widescreen
+-----------------------------------------------------------------------------*/
+@media (min-width: 60em) {
+  #wrapper {
+    grid-template-columns: 1fr 7fr 1fr;
+    grid-template-areas: 
+      "header header header"
+      "aside  main aside"
+      "footer  footer footer";
+   }
+}
+@media (min-width: 50em) {
+}
