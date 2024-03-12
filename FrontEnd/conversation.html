@@ -1,32 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Home Page</title>
+    <link rel="stylesheet" href="guideGptStyle.css">
+    <link rel="stylesheet" href="normalize.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Strait">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="home.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <nav class="menu menuBars"><!--The primary navigation for the page -->
+	        <h3>GuideGPT</h3>
+	        <div class="menuButtons">
+	            <ul class="menuButtonList">
+	                <hr>
+                    <li><button class="menuButton">Log Out</button></li>
+		            <li><button class="menuButton">Create Conversation</button></li>
+                </ul>
+            </div>
+	        <a class="icon">
+                <i class="fa fa-bars menuBars"></i>
+            </a>
 
-    <head>
-        <meta charset="utf-8"/>
-        <link rel="stylesheet" href="index.css" />
-        <script src="index.js"></script>
-        <Title>NASA Image Search</Title>
-    </head>
-
-    <body>
-        <div id="Contact">
-            <h1>NASA Image Search</h1>
-            <form id="Form">
-            <fieldset>
-                <label for="Search">Search:</label>
-                <span id="HintSearch">Please input search request</span>
-                <input type="text" id="Search"/>
-                <input type="submit" value="Submit">
-            </fieldset>
-        </form>
-        </div>
-        <div id="Loading">
-            <img src = "https://fgr11.brighton.domains/ci527/sem2/restclient/spinninggear.gif" alt="Error Displaying Gif">
-        </div>
-        <div id="Success">     
-        </div>
-        <div id="Error">
-            <h1>Error</h1>
-        </div>
-    </body>
+	        </nav>
+        </header>
+        <hr>
+        <main>
+            <div id="chat-container" class="conversation">
+                <h4 class="title">Conversation Title</h4>
+                <!-- Example user message -->
+                <div class="message user-message">Hello, how can I help you?</div>
+                <!-- Example bot message -->
+                <div class="message bot-message">Hi there! I'm here to assist you.</div>
+            </div>
+            <form id="message-form" class="input-form">
+                <input type="text" id="user-input" placeholder="Type your message...">
+                <button type="submit" id="send-button"><i class="fas fa-paper-plane"></i></button>
+            </form>
+        </main>
+    </div>
+</body>
 </html>
