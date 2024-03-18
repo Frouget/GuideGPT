@@ -18,8 +18,8 @@
 	        <div class="menuButtons">
 	            <ul class="menuButtonList">
 	                <hr>
-                    <li><button class="menuButton">Log Out</button></li>
-		            <li><button class="menuButton">Create Conversation</button></li>
+                    <li><button class="menuButton" id="logOut">Log Out</button></li>
+		            <li><button class="menuButton" id="createConvo">Create Conversation</button></li>
                 </ul>
             </div>
 	        <a class="icon">
@@ -30,17 +30,32 @@
         </header>
         <hr>
         <main>
-            <div class="conversation">
-                <h2 class="conversation-title">Conversation 1</h2>
-                <button class="chat-button">Chat</button>
-                <button class="delete-conversation-button">Delete Conversation</button>
+            <div id="creationWindow" class="modal">
+                <div class="modal-content">
+                    <button id="creationWindowClose">X</button>
+                    <h2>Create a Conversation</h2>
+                    <form id="conversationForm">
+                        <label for="title">Title:</label><br>
+                        <input type="text" id="title" name="title"><br>
+                        <span class="hint" id="creationHint">A title is required</span>
+                        <input type="checkbox" id="useLocation" name="useLocation">
+                        <label for="useLocation">Use My Location</label><br><br>
+                        <button type="submit">Submit</button>
+                    </form>
+                </div>
             </div>
-            <div class="conversation">
-                <h2 class="conversation-title">Conversation 2</h2>
-                <button class="chat-button">Chat</button>
-                <button class="delete-conversation-button">Delete Conversation</button>
+            <div id = conversationList>
+                <div class="conversation">
+                    <h2 class="conversation-title">Conversation 1</h2>
+                    <button class="chat-button">Chat</button>
+                    <button class="delete-conversation-button">Delete Conversation</button>
+                </div>
+                <div class="conversation">
+                    <h2 class="conversation-title">Conversation 2</h2>
+                    <button class="chat-button">Chat</button>
+                    <button class="delete-conversation-button">Delete Conversation</button>
+                </div>
             </div>
-            <!-- Additional conversation divs can be dynamically added here -->
         </main>
     </div>
 </body>
