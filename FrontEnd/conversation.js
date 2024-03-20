@@ -1,106 +1,148 @@
 window.addEventListener("load", function (evt) {
-    //defining variables for finding divs and creating a counter
-    var contact = document.querySelector("#Contact");
-    var loading = document.querySelector("#Loading");
-    var success = document.querySelector("#Success");
-    var error = document.querySelector("#Error");
-    var count = 0;
     
-    //Creating an event listener for the submit button
-    var form = document.querySelector("#Form");
-    form.addEventListener('submit', function(evt) {
-        evt.preventDefault();
+    //Toggles menu button visibility
+    function toggleMenuButtons() {
+        menuButtons.classList.toggle('open');
+    }
+    
+    // Handling logout scenario
+    function logOut() {
+        sessionStorage.removeItem('sessionId');
+        // Redirecting the user to the log in page
+        window.location.href = 'signIn.html';
+    }
+    
+    // Handling logout scenario
+    function goHome() {
+        // Redirecting the user to the home page
+        window.location.href = 'home.html';
+    }
+    
+    async function getConversation() {
+        if(pid != null && cid != null) {
+            try {
+                const getConversationResponse = await fetch(`www.something.com/conversation?pid=${pid}&cid=${cid}`, {
+                    method: 'GET'
+                });
+                const conversationData = await getConversationResponse.json();
 
-        //Defining variables for the search and input validation
-        var search = document.querySelector("#Search").value.trim();
-        var hintsearch = document.querySelector("#HintSearch");
-        var fieldsok = true;
-        
-        //Using if/else methods to display correct div for scenario
-        if(search.length === 0) {
-            fieldsok = false;
-            hintsearch.style.display = "inline";
-        }else {
-            hintsearch.style.display = "none";
-        }
-        
-        if (fieldsok === true) {
-            contact.style.display = "none";
-            loading.style.display = "block";
-            success.style.display = "none";
-            error.style.display = "none";
-            //Remove previous results and create search result header
-            while (success.firstChild !== null) {
-                let target = success.lastChild;
-                target.remove();
-            }
-            //Creating element for search result counter
-            var result = document.createElement("h3");
-            success.appendChild(result);
-            count = 0;
-            
-
-            
-            //Creating xmlhttp request
-            var xhttp = new XMLHttpRequest();
-            xhttp.addEventListener("load", function (evt) {
-                if (xhttp.status == 200) {
-                    console.log("success");
-                    var jsonResponse = JSON.parse(xhttp.responseText);
-                    console.log(jsonResponse);                    
-                    
-                    //Loop for each search result
-		            jsonResponse.collection.items.forEach(function (item){
-                        
-                        //Creating element, getting data and appending to the success div
-                        //Then repeating the process for each type of data needed
-			            var title = item.data[0].title;
-			            var titleDoc = document.createElement("h4");
-			            titleDoc.textContent = title;
-                        success.appendChild(titleDoc);
-                        console.log(title);
-                        count++;
-                        
-                        var link = item.links[0].href;
-                        var linkDoc = document.createElement("img");
-                        linkDoc.setAttribute("src", link);
-                        linkDoc.setAttribute("alt", "Error displaying image");
-                        success.appendChild(linkDoc);
-                        console.log(link);
-                     
-                        var description = item.data[0].description_508;
-                        var descDoc = document.createElement("p");
-                        descDoc.textContent = description;
-                        success.appendChild(descDoc);
-                        console.log(description);
-                        
-                        var date = item.data[0].date_created;
-                        var dateDoc = document.createElement("p");
-                        dateDoc.textContent = date;
-                        success.appendChild(dateDoc);
-                        console.log(date);
-                    });
-                
-                //Updating search result counter
-                result.textContent = count + " results found";
-                
-                //Showing/hiding correct divs for SPA
-                contact.style.display = "block";
-                loading.style.display = "none";
-                success.style.display = "block";
-                error.style.display = "none";                    
-                }else {
-                    contact.style.display = "block";
-                    loading.style.display = "none";
-                    success.style.display = "none";
-                    error.style.display = "block";
-
+                //Remove all pre-existing messages
+                while (chatList.firstChild) {
+                    chatList.removeChild(chatList.firstChild);
                 }
-            });
-            //Get request to NASA API
-            xhttp.open("GET", 'https://images-api.nasa.gov/search?q=' + search + '&media_type=image', true);
-            xhttp.send();
+                
+                conversationData.forEach(item => {
+                    let type = item.type;
+                    let text = item.text;
+                    
+                    // Create HTML elements for each conversation object
+                    let messageElement = document.createElement('div');
+                    messageElement.innerHTML = `
+                    <div class="${type}">${text}</div>`; 
+                    chatList.appendChild(messageElement);
+                });
+            } catch (error) {
+                console.error('Error fetching data:', error);
             }
-        
-    });
+        }else {
+            alert("Unable to retrieve session ID.");
+        }
+    }
+    
+    async function pollConversation(pid, cid, timestamp){
+        const interval = 5000;
+        let conversationId = null;
+        const polling = async () => {
+            try {
+                const pollingResponse = await fetch(`www.something.com/conversation?pid=${pid}&cid=${cid}&timestamp=${timestamp}`, {
+                    method: 'GET'
+                });
+                
+                if (!pollingResponse.ok) {
+                    throw new Error('Polling request failed');
+                }
+
+                const pollingData = await pollingResponse.json();
+                if (pollingData.conversationId) {
+                    // Conversation ID received, stop polling
+                    conversationId = pollingData.conversationId;
+                    console.log('Received conversation ID:', conversationId);
+                    getConversation();
+                } else {
+                    // No conversation ID yet, continue polling
+                    setTimeout(polling, interval);
+                }
+                
+            } catch (error) {
+                console.error('Polling failed:', error.message);
+                // Retry polling or handle error as needed
+            }
+        };
+        // Start initial polling
+        polling();
+    }
+    
+    async function sendMessage(pid, cid, userMessage) {
+        try {
+            const messageResponse = await fetch('www.something.com/conversation?pid=' + pid + '&cid=' + cid, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    "message": userMessage
+                })
+            });
+    
+            if (!messageResponse.ok) {
+                const errorMessage = await messageResponse.text();
+                throw new Error(errorMessage);
+            }
+    
+            const messageData = await messageResponse.json();
+            //Assign the creation initialization timestamp if sent back by the api
+            const timestamp = messageData.timestamp;
+            if(timestamp != null){
+                pollConversation(pid, cid, timestamp);
+            }else {
+                 alert("Message send Failed. No polling timestamp found.");
+            }
+            
+            
+        } catch (error) {
+            // Display error message to the user
+            console.error('Creation failed:', error.message);
+            // You can modify HTML to display the error message to the user here
+        }
+    }
+    
+    async function handleSendMessage(event) {
+        event.preventDefault(); // Prevent default form submission
+                if(pid != null && cid != null) {
+            if(userMessage != null && userMessage !== ""){
+                await sendMessage(pid, cid, userMessage);
+            }else {
+                alert("No message to send.");
+            }
+        }else {
+            alert("Unable to retrieve session ID.");
+        }
+    };
+    
+    const pid = sessionStorage.getItem('sessionId');
+    const chatList = document.querySelector("#chat-container");
+    const icon = document.querySelector('.icon');
+    const menuButtons = document.querySelector('.menuButtons');
+    const logOutButton = document.querySelector("#logOut");
+    const homeButton = document.querySelector("#home");
+    const sendChatButton = document.querySelector("#send-button");
+    const userMessage = document.querySelector("#user-input").value;
+    const params = (new URL(document.location)).searchParams;
+    const cid = params.get("cid");
+    
+    getConversation();
+    icon.addEventListener('click', toggleMenuButtons);
+    logOutButton.addEventListener ('click', logOut);
+    homeButton.addEventListener ('click', goHome);
+    sendChatButton.addEventListener ('click', handleSendMessage);
 });
