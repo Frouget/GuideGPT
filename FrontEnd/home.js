@@ -40,11 +40,69 @@ window.addEventListener("load", function (evt) {
         }
     }
     
-    async function handleDeleteConversationButton() {
-        const cid = event.target.parentElement.id;
-        if (cid != null && cid !== "" && pid != null) {
+    async function getConversations() {
+        if(pid != null) {
             try {
-                const deletionResponse = await fetch(`www.something.com/home?pid=${pid}&cid=${cid}`, {
+                listConversationResponse = await fetch(`https://fgr11.brighton.domains/testing/guidegpt/api.php/home?pid=${pid}`, {
+                    method: 'GET'
+                });
+
+                if (!listConversationResponse.ok) {
+                    console.log('test');
+                    const errorMessage = await listConversationResponse.text();
+                    throw new Error(errorMessage);
+                }
+            
+                const listConversationData = await listConversationResponse.json();
+                //Remove all pre-existing conversations
+                while (conversationList.firstChild) {
+                    conversationList.removeChild(conversationList.firstChild);
+                }
+                
+                if (listConversationData != null && listConversationData.results != null && listConversationData.results.length > 0) {
+                    listConversationData.results.forEach(item => {
+                        let conversationTitle = item.title;
+                        let conversationId = item.cid;
+                    
+                        // Create HTML elements for each conversation object
+                        let conversationElement = document.createElement('div');
+                        conversationElement.innerHTML = `
+                        <div class="conversation" id="${conversationId}">
+                            <h2 class="conversation-title">${conversationTitle}</h2>
+                            <button class="chat-button">Chat</button>
+                            <button class="delete-conversation-button">Delete Conversation</button>
+                        </div>`; 
+                        conversationList.appendChild(conversationElement);
+                    });
+                    // Attach event listeners outside the loop
+                    const chatButtons = document.querySelectorAll('.chat-button');
+                    chatButtons.forEach(button => {
+                        button.addEventListener('click', handleChatButton);
+                    });
+
+                    const deleteConversationButtons = document.querySelectorAll('.delete-conversation-button');
+                    deleteConversationButtons.forEach(button => {
+                        button.addEventListener('click', handleDeleteConversationButton);
+                    });
+                } else {
+                    let bodyElement = document.createElement('div');
+                    bodyElement.innerHTML = 
+                    `<h3 class="noConversationsMessage">No Conversations Found. Create one using the menu at the top right!</h2>`; 
+                    conversationList.appendChild(bodyElement);
+                }
+            } catch (error) {
+                console.error('Error fetching data:', JSON.stringify(error));
+            }
+        }else {
+            alert("Unable to retrieve session ID.");
+        }
+    }
+    
+    async function handleDeleteConversationButton() {
+        const id = event.target.parentElement.id;
+        if (id != null && id !== "") {
+            try {
+                const deletionResponse = await fetch(`https://fgr11.brighton.domains/testing/guidegpt/api.php/home?pid=${pid}&cid=${id}`, {
                     method: 'GET'
                 });
                 const deletionData = await deletionResponse.json();
@@ -59,65 +117,25 @@ window.addEventListener("load", function (evt) {
             alert("Unable to retrieve session ID or conversation ID.");
         }
     }
-    
-    async function getConversations() {
-        if(pid != null) {
-            try {
-                const response = await fetch(`www.something.com/home?pid=${pid}`, {
-                    method: 'GET'
-                });
-                const listConversationData = await response.json();
 
-                //Remove all pre-existing conversations
-                while (conversationList.firstChild) {
-                    conversationList.removeChild(conversationList.firstChild);
-                }
-                
-                listConversationData.forEach(item => {
-                    let conversationTitle = item.title;
-                    let conversationId = item.cid;
-                    
-                    // Create HTML elements for each conversation object
-                    let conversationElement = document.createElement('div');
-                    conversationElement.innerHTML = `
-                    <div class="conversation" id="${conversationId}">
-                        <h2 class="conversation-title">${conversationTitle}</h2>
-                        <button class="chat-button">Chat</button>
-                        <button class="delete-conversation-button">Delete Conversation</button>
-                    </div>`; 
-                    conversationList.appendChild(conversationElement);
-                    const conversationDiv = document.querySelector("#conversationForm");
-                    const chatButton = conversationDiv.querySelector(".chat-button");
-                    const deleteConversationButton = conversationDiv.querySelector(".delete-conversation-button");
-                    chatButton.addEventListener('click', handleChatButton);
-                    deleteConversationButton.addEventListener('click', handleDeleteConversationButton);
-                });
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        }else {
-            alert("Unable to retrieve session ID.");
-        }
-    }
     
     async function pollConversation(pid, timestamp){
-        const interval = 5000;
+        const interval = 2000;
         let conversationId = null;
         const polling = async () => {
             try {
-                const pollingResponse = await fetch(`www.something.com/home?pid=${pid}&timestamp=${timestamp}`, {
+                const pollingResponse = await fetch(`https://fgr11.brighton.domains/testing/guidegpt/api.php/home?pid=${pid}&timestamp=${timestamp}`, {
                     method: 'GET'
                 });
+                console.log('Polling Conversation Creation');
                 
                 if (!pollingResponse.ok) {
                     throw new Error('Polling request failed');
                 }
 
                 const pollingData = await pollingResponse.json();
-                if (pollingData.conversationId) {
-                    // Conversation ID received, stop polling
-                    conversationId = pollingData.conversationId;
-                    console.log('Received conversation ID:', conversationId);
+                if (pollingData.success) {
+                    // Success flag received, stop polling and reload conversations
                     getConversations();
                 } else {
                     // No conversation ID yet, continue polling
@@ -135,7 +153,7 @@ window.addEventListener("load", function (evt) {
     
     async function createConversation(pid, title, latitude, longitude) {
         try {
-            const creationResponse = await fetch('www.something.com/home', {
+            const creationResponse = await fetch('https://fgr11.brighton.domains/testing/guidegpt/api.php/home', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -180,11 +198,22 @@ window.addEventListener("load", function (evt) {
         if(pid != null) {
             if(title != null && title !== ""){
                 if(useLocation === true){
-                    navigator.geolocation.getCurrentPosition(function(position) {
-                    var latitude = position.coords.latitude;
-                    var longitude = position.coords.longitude;
-                    });
-                    if(latitude === null || longitude === null){
+                    if(navigator.geolocation) {
+                        const getPosition = () => {
+                            return new Promise((resolve, reject) => {
+                                navigator.geolocation.getCurrentPosition(resolve, reject);
+                            });
+                        }
+                        
+                        try {
+                            const position = await getPosition();
+                            latitude = position.coords.latitude;
+                            longitude = position.coords.longitude;
+                        } catch (error) {
+                            console.error("Error getting location:", error);
+                            alert("Unable to retrieve location. Creating conversation without location reference.");
+                        }
+                    } else {
                         alert("Unable to retrieve location. Creating conversation without location reference.");
                     }
                 }
