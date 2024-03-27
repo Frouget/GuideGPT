@@ -6,7 +6,7 @@ window.addEventListener("load", function (evt) {
 
     async function loginUser(username, password) {
         try {
-            const response = await fetch('www.something.com/login', {
+            const response = await fetch('https://fgr11.brighton.domains/testing/guidegpt/api.php/logIn', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -23,24 +23,28 @@ window.addEventListener("load", function (evt) {
             }
     
             const data = await response.json();
-            const sessionId = data.id; // Assuming the API sends back an ID upon successful login
+            if(data.success != null && data.success === true) {
+                const sessionId = data.pid; // Assuming the API sends back an ID upon successful login
     
-            // Storing the session ID in the user's session
-            sessionStorage.setItem('sessionId', sessionId);
+                // Storing the session ID in the user's session
+                sessionStorage.setItem('sessionId', sessionId);
 
-            // Redirecting the user to the home page
-            window.location.href = 'home.html';
+                // Redirecting the user to the home page
+                window.location.href = 'home.html';
+            }else {
+                alert("Error: " + data.error);
+            }
+            
     
         } catch (error) {
             // Display error message to the user
             console.error('Login failed:', error.message);
-            //ADD HTML REPRESENTATION OF ERROR HERE
         }
     }
 
     async function signUpUser(email, name, username, password) {
         try {
-            const response = await fetch('www.something.com/signup', {
+            const response = await fetch('https://fgr11.brighton.domains/testing/guidegpt/api.php/signUp', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -59,7 +63,7 @@ window.addEventListener("load", function (evt) {
             }
     
             const data = await response.json();
-            const sessionId = data.id; // Assuming the API sends back an ID upon successful login
+            const sessionId = data.pid// Assuming the API sends back an ID upon successful login
     
             // Storing the session ID in the user's session
             sessionStorage.setItem('sessionId', sessionId);
@@ -83,9 +87,9 @@ window.addEventListener("load", function (evt) {
         const username = formData.get('username');
         const password = formData.get('password');
         
-        if (form.id === 'login') {
+        if (form.id === 'logInForm') {
             await loginUser(username, password);
-        } else if (form.id === 'signup') {
+        } else if (form.id === 'signUpForm') {
             const email = formData.get('email');
             const name = formData.get('name');
             await signUpUser(email, name, username, password);
@@ -99,8 +103,8 @@ window.addEventListener("load", function (evt) {
     const signToLogButton = document.querySelector('#signToLogButton');
 
     //Adding event listeners for dynamic functionality
-    logToSignButton.addEventListener('onclick', toggleForm);
-    signToLogButton.addEventListener('onclick', toggleForm);
+    logToSignButton.addEventListener('click', toggleForm);
+    signToLogButton.addEventListener('click', toggleForm);
     logInForm.addEventListener('submit', handleFormSubmit);
     signUpForm.addEventListener('submit', handleFormSubmit);
 });
