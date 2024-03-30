@@ -23,7 +23,7 @@ if ($lastSlashPos !== false) {
             echo "Missing Request Body Data";
             $status = 400;
         }
-    } else if ($route === 'api/reply') {
+    } else if ($route === 'conversationReply') {
         if($body !== null){
             handleFunction($connect, "saveAndReturnReply", $body);
         } else {
@@ -71,14 +71,14 @@ if ($lastSlashPos !== false) {
         }
     } else if ($route === 'conversation') {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            if ($body !== null && $body->cid !== null && $body->message !== null) {
+            if ($body !== null) {
                 handleFunction($connect, "sendConversation",$body);
             } else {
                 echo "Missing Request Body Data";
                 $status = 400;
             }
         } else if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-            if($query !== false) {
+            if($query !== null) {
                 handleFunction($connect, "readConversation",$query);
             } else {
                 echo "Missing query parameter";
@@ -113,7 +113,22 @@ function handleFunction($connect, $functionType, $parameter)
 
 class myAPI
 {
-    //Sign-In Page functions -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //A simple function allowing quick verification of query properties
+    public function checkQueryValue($queryArray, $string){
+        //echo json_encode($queryArray);
+        $queryArray = array_filter($queryArray, function($elem) use ($string) {
+            return (str_contains($elem, $string));
+        });
+        if (count($queryArray) !== 0 && count($queryArray) === 1){
+            foreach($queryArray as $query) {
+                return explode('=', $query)[1];
+            };
+        } else {
+            return null;
+        }
+    }
+    
+//Sign-In Page functions -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
     
     //handling a logIn request
     public function logIn($connect, $body) {
@@ -209,22 +224,7 @@ class myAPI
         http_response_code($status);
     }
     
-    //Home Page functions --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    
-    //A simple function allowing quick verification of query properties
-    public function checkQueryValue($queryArray, $string){
-        //echo json_encode($queryArray);
-        $queryArray = array_filter($queryArray, function($elem) use ($string) {
-            return (str_contains($elem, $string));
-        });
-        if (count($queryArray) !== 0 && count($queryArray) === 1){
-            foreach($queryArray as $query) {
-                return explode('=', $query)[1];
-            };
-        } else {
-            return null;
-        }
-    }
+//Home Page functions --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     public function getConversationList($connect, $pid){
         //building sql query and sending to database
@@ -350,29 +350,36 @@ class myAPI
     //handling a deleteConversation request
     public function deleteConversation($connect, $query)
     {
-        $pid = '';          
+        $pid = '';        
         $cid = '';
-        //check if any records related to the pid have been created after the timestamp
         $queries = explode('&', $query);
         $pid = $this->checkQueryValue($queries, 'pid=');
         $cid = $this->checkQueryValue($queries, 'cid=');
-        if($pid !== null && $cid === null){
-            //building sql query and sending to database
+        if($pid != null && $cid != null){
             $cid = $connect->real_escape_string($cid);
-            $sql = "DELETE FROM conversations WHERE pid = $pid AND cid = $cid";
+            //building sql query and sending to database
+            $sql = "SELECT * FROM conversations WHERE pid = $pid AND cid = '$cid'";
             $result = mysqli_query($connect, $sql);
-            $sql2 = "SELECT FROM conversations WHERE pid = $pid AND cid = $cid";
-            $result2 = mysqli_query($connect, $sql2);
-            if($result->num_rows === 0) {
-                $JSON = "{\"success\" : true}";
-                $status = 200;
-                mysqli_free_result($result2);
-                echo $JSON;
+            //check if any locations were found
+            if ($result->num_rows === 1) {
+                $sql2 = "DELETE FROM conversations WHERE pid = $pid AND cid = '$cid'";
+                $result2 = mysqli_query($connect, $sql2);
+                $sql3 = "SELECT * FROM conversations WHERE pid = $pid AND cid = '$cid'";
+                $result3 = mysqli_query($connect, $sql3);
+                if($result3-> num_rows === 0) {
+                    $JSON = "{\"success\" : true}";
+                    $status = 200;
+                    echo $JSON;
+                } else {
+                    //status if no conversations are found
+                    $JSON = "{\"success\" : false, \"error\" : \"Conversation Deletion Failed\"}";
+                    $status = 500;
+                    echo $JSON;
+                }
             } else {
                 //status if no conversations are found
-                $JSON = "{\"success\" : false, \"error\" : \"Conversation Deletion Failed\"}";
+                $JSON = "{\"success\" : false, \"error\" : \"Conversation For Deletion Not Found\"}";
                 $status = 500;
-                mysqli_free_result($result2);
                 echo $JSON;
             }
         } else {
@@ -382,57 +389,95 @@ class myAPI
             echo $JSON;
         }
         //Free memory from output
+        mysqli_free_result($result);
         http_response_code($status);
     }
     
-    //Conversation Page functions -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//Conversation Page functions -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    private function getConversation(){
-            //Assigning the personal id to identify the user and the conversation id to identify which conversation to retrieve
-            $cid = $connect->real_escape_string($cid);
-            //building sql query and sending to database
-            $sql = "SELECT * FROM conversations WHERE cid = $cid";
-            $result = mysqli_query($connect, $sql);
-            if ($result->num_rows > 0) {
-                if ($result->num_rows === 1) {
-                    $resultObj;
-                    //verifying correct data is present then echoing
-                    $row = mysqli_fetch_assoc($result);
-                    if ($row !== null && $row['cid'] === $cid && $row['pid'] === $pid && $row['title'] !== null && $row['messages'] !== null && $row['latitude'] !== null && $row['longitude'] !== null) {
-                        $resultObj = $row;
-                        $JSON = "{\"result\" : " . json_encode($resultObj) . "}";
-                        $status = 200;
-                        echo $JSON;
-                    }
-                } else {
-                    //status if multiple conversations are found
-                    echo 'Error: Multiple Conversations Found';
-                    $status = 500;
+    public function getConversation($connect, $pid, $cid){
+        //Assigning the personal id to identify the user and the conversation id to identify which conversation to retrieve
+        $cid = $connect->real_escape_string($cid);
+        //building sql query and sending to database
+        $sql = "SELECT * FROM conversations WHERE pid = $pid AND cid = '$cid'";
+        $result = mysqli_query($connect, $sql);
+        if ($result->num_rows > 0) {
+            if ($result->num_rows === 1) {
+                $resultObj;
+                //verifying correct data is present then echoing
+                $row = mysqli_fetch_assoc($result);
+                if ($row !== null && $row['cid'] === $cid && $row['pid'] === $pid && $row['title'] !== null && $row['messages'] !== null) {
+                    $resultObj['title'] = $row['title'];
+                    $resultObj['messages'] = $row['messages'];
+                    $JSON = "{\"success\" : true, \"result\" : " . json_encode($resultObj) . "}";
+                    $status = 200;
+                    echo $JSON;
                 }
             } else {
-                //status if no conversations are found
-                echo 'No Conversations Found';
-                $status = 204;
+                //status if multiple conversations are found
+                $JSON = "{\"success\" : false, \"error\" : \"Multiple Conversations Found\"}";
+                $status = 500;
+                echo $JSON;
             }
-            //Free memory from output
-            mysqli_free_result($result);
-            http_response_code($status);
+        } else {
+            //status if no conversations are found
+            $JSON = "{\"success\" : false, \"error\" : \"No Conversations Found\"}";
+            $status = 204;
+            echo $JSON;
+        }
+        //Free memory from output
+        mysqli_free_result($result);
+        http_response_code($status);
     }
     
-    private function pollConversation(){
-            //formatting variables for sql query
-            $cid = $connect->real_escape_string($cid);
-            $timestamp = $connect->real_escape_string($timestamp);
-            //building sql query and sending to database
-            $sql = "SELECT * FROM conversations WHERE cid = $cid AND pid = $pid AND updated >= $timestamp";
-            $result = mysqli_query($connect, $sql);
-            if ($result->num_rows > 0){
-                $status = 200;
-                echo "Conversation Updated";
-                //Free memory from output
-                mysqli_free_result($result);
-                http_response_code($status);
+    public function pollConversation($connect, $pid, $cid, $timestamp){
+        //formatting variables for sql query
+        $cid = $connect->real_escape_string($cid);
+        $timestamp = $connect->real_escape_string($timestamp);
+        //building sql query and sending to database
+        $sql = "SELECT * FROM conversations WHERE pid = $pid AND cid = '$cid'";
+        $result = mysqli_query($connect, $sql);
+        if ($result && $result->num_rows > 0){
+            if ($result->num_rows === 1) {
+                $resultIndicator = false;
+                $row = mysqli_fetch_assoc($result);
+                if ($row !== null && $row['pid'] === $pid && $row['cid'] === $cid && $row['updated'] !== null) {
+                    $date = DateTime::createFromFormat('Y-m-d H:i:s', $row['updated']);
+                    $formattedDate = $date->getTimestamp();
+                    if ($formattedDate >= $timestamp) {
+                        $resultIndicator = true;
+                    }
+                    if($resultIndicator === true) {
+                        $JSON = "{\"success\" : true}";
+                        $status = 200;
+                        echo $JSON;
+                    }else {
+                        //status if conversation has not been updated
+                        $JSON = "{\"success\" : false}";
+                        $status = 204;
+                        echo $JSON;
+                    }
+                }else {
+                    //status if record does not match
+                    $JSON = "{\"success\" : false, \"error\" : \"Record Does Not Match Expected Result.\"}";
+                    $status = 500;
+                    echo $JSON;
+                }
+            }else {
+                //status if multiple records are found
+                $JSON = "{\"success\" : false, \"error\" : \"Multiple Conversations Found.\"}";
+                $status = 500;
+                echo $JSON;
             }
+        }else{
+            //status if no conversation is found
+            $JSON = "{\"success\" : false, \"error\" : \"No Conversations Found.\"}";
+            $status = 500;
+            echo $JSON;
+        }
+        //Free memory from output
+        mysqli_free_result($result);
+        http_response_code($status);
     }
     
     //function related to retreival of a specific conversation
@@ -442,13 +487,13 @@ class myAPI
         $pid = '';          
         $timestamp = '';      
         $queries = explode('&', $query);
-        $cid = checkQueryValue($queries, 'cid=');
-        $pid = checkQueryValue($queries, 'pid=');
-        $timestamp = checkQueryValue($queries, 'timestamp=');
+        $cid = $this->checkQueryValue($queries, 'cid=');
+        $pid = $this->checkQueryValue($queries, 'pid=');
+        $timestamp = $this->checkQueryValue($queries, 'timestamp=');
         if($cid !== null && $pid !== null && $timestamp === null){
-            getConversation();
+            $this->getConversation($connect, $pid, $cid);
         } else if ($cid !== null && $pid !== null && $timestamp !== null){
-            pollConversation();
+            $this->pollConversation($connect, $pid, $cid, $timestamp);
         } else {
             //Not all query parameters found
             $status = 500;
@@ -457,63 +502,92 @@ class myAPI
     }
     
     //handling a sendConversation request
-    public function sendConversation($connect, $query)
-    {
-        if ($body !== null && $body->cid !== null && $body->message !== null) {
-            $cid = $connect->real_escape_string($cid);
+    public function sendConversation($connect, $body) {
+        if ($body !== null && $body->pid !== null && $body->cid !== null && $body->message !== null) {
+            $pid = $body->pid;
+            $cid = $connect->real_escape_string($body->cid);
             //building sql query and sending to database
-            $sql = "SELECT * FROM conversations WHERE cid = $cid";
+            $sql = "SELECT * FROM conversations WHERE pid = $pid AND cid = '$cid'";
             $result = mysqli_query($connect, $sql);
-            if ($result->num_rows > 0) {
+            if ($result && $result->num_rows > 0) {
                 if ($result->num_rows === 1) {
                     $resultObj;
                     //verifying correct data is present then echoing
                     $row = mysqli_fetch_assoc($result);
-                    if ($row !== null && $row['cid'] === $cid && $row['pid'] === $pid && $row['title'] !== null && $row['messages'] !== null && $row['latitude'] !== null && $row['longitude'] !== null) {
-                        $result = $row;
-                        //formatting variables for http request
-                        $url = 'https:fgr11.brighton.domains/public_html/GuideGPT/api/webhook/reply'; //Webhook URL
-                        $jsonBody = json_encode($body);
-                        $requestConfig = array('http' => array(
-                            'method' => 'POST',
-                            'header' => 'Content-type: application/json',
-                            'content' => $jsonBody
-                        ));
-                        //Creating the stream context
-                        $context  = stream_context_create($requestConfig);
-                        //Making the POST request
-                        $response = file_get_contents($url, false, $context);
-                        $responseData = json_decode($response, true);
-                        if($responseData['success'] !== null && $responseData['success'] === true){
-                            echo "Record Created";
-                            $status = 201;
+                    //Unsure why this was causing an issue but pid was not coming back as an integer, so I have cast it manually
+                    if ($row !== null && $row['cid'] === $cid && (int)$row['pid'] === $pid && $row['messages'] !== null) {
+                        $newMessages = json_decode($row['messages']);
+                        $lastMessage = end($newMessages);
+                        if ($lastMessage->role === 'assistant') {
+                            $newMessageObject;
+                            $newMessageObject['id'] = $lastMessage->id + 1;
+                            $newMessageObject['role'] = 'user';
+                            $newMessageObject['content'] = $body->message;
+                            array_push($newMessages, $newMessageObject);
+                            $resultObj['cid'] = $row['cid'];
+                            $resultObj['pid'] = $row['pid'];
+                            $resultObj['messages'] = $newMessages;
+                            //formatting variables for http request
+                            $url = 'https://freddierouget-h.cyclr.uk/api/webhook/NNBcMlQq'; //Webhook URL
+                            $jsonBody = json_encode($resultObj);
+                            $requestConfig = array('http' => array(
+                                'method' => 'POST',
+                                'header' => 'Content-type: application/json',
+                                'content' => $jsonBody
+                            ));
+                            //Creating the stream context
+                            $context  = stream_context_create($requestConfig);
+                            //Making the POST request
+                            $response = file_get_contents($url, false, $context);
+                            if(json_decode($response) === 'Webhook accepted.'){
+                                $timestamp = time();
+                                $JSON = "{\"success\" : true, \"timestamp\" : " . $timestamp . "}";
+                                $status = 200;
+                                echo $JSON;
+                            } else {
+                                $JSON = "{\"success\" : false, \"error\" : \"Webhook Rejected.\"}";
+                                $status = 500;
+                                echo $JSON;
+                            }
+                        }else {
+                        //status if conversation details are not returned
+                        $JSON = "{\"success\" : false, \"error\" : \"Last Message Already Sent By User.\"}";
+                        $status = 500;
                         }
+                    }else {
+                        //status if conversation details are not returned
+                        $JSON = "{\"success\" : false, \"error\" : \"Conversation Record Data Could Not Be Retrieved.\"}";
+                        $status = 500;
+                        echo $JSON;
                     }
-                }   else {
+                } else {
                     //status if multiple conversations are found
-                    echo 'Error: Multiple Conversations Found';
+                    $JSON = "{\"success\" : false, \"error\" : \"Multiple Conversations Found.\"}";
                     $status = 500;
-                }
+                    echo $JSON;
+                }   
             } else {
                 //status if no conversations are found
-                echo 'No Conversations Found';
-                $status = 204;
+                $JSON = "{\"success\" : false, \"error\" : \"No Conversations Found.\"}";
+                $status = 500;
+                echo $JSON;
             }
         } else {
-            echo "Missing Request Body Data";
+            $JSON = "{\"success\" : false, \"error\" : \"Missing Request Body Data.\"}";
             $status = 400;
-        }
+            echo $JSON;
+        }   
         //Free memory from output
-        mysqli_free_result($result);
         http_response_code($status);
     }
     
-    //Integration functions --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//Integration functions --------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    
     //handling a saveAndReturnCreation request
     public function saveAndReturnCreation($connect, $body) {
         if($body !== null && $body->cid !== null && $body->pid !== null && $body->title !== null && $body->messages !== null && $body->latitude !== null && $body->longitude !== null){
             //formatting variables for sql query
-            if($body->messages[1]->content === 'Awaiting questions') {
+            if($body->messages[1]->content === 'Awaiting questions' || $body->messages[1]->content === 'Awaiting questions.') {
                 $cid = $connect->real_escape_string($body->cid);
                 $pid = $body->pid;
                 $title = $connect->real_escape_string($body->title);
@@ -557,35 +631,63 @@ class myAPI
 
     //handling a saveAndReturnReply request
     public function saveAndReturnReply($connect, $body) {
-        if($body !== null && $body->cid !== null && $body->message !== null){
+        if($body !== null && $body->cid  !== null && $body->pid !== null && $body->messages !== null){
+            $timestamp = time();
             //formatting variables for sql query
-            $jsonMessages = json_encode($body->messages);
+            $pid = $body->pid;
             $cid = $connect->real_escape_string($body->cid);
-            $messages = $connect->real_escape_string($jsonMessages);
+            $messages = $connect->real_escape_string(json_encode($body->messages));
             //building sql query and sending to database
-            $sql = "UPDATE `conversations` SET(`messages` = '$messages') WHERE (`cid` = '$cid')";
-            mysqli_query($connect, $sql);
+            $sql = "UPDATE `conversations` SET `messages` = '$messages' WHERE `cid` = '$cid' AND `pid` = $pid";
+            $result = mysqli_query($connect, $sql);
             //building sql query to check that the location was created
-            $sql2 = "SELECT * FROM `conversations` WHERE `cid` = '$cid' AND `messages` = '$messages' ORDER BY cid DESC LIMIT 1";
-            $result = mysqli_query($connect, $sql2);
+            $sql2 = "SELECT * FROM `conversations` WHERE `cid` = '$cid' AND `pid` = '$pid'";
+            $result2 = mysqli_query($connect, $sql2);
             //checking the record has been updated with messages then echoing a response
-            if ($result !== false && mysqli_num_rows($result) > 0) {
-                $JSON = "{\"cid\" : " . json_encode($cid) . ",
-                          \"success\" : true}";
-                echo $JSON;
-                $status = 201;
+            if ($result2 !== false && mysqli_num_rows($result2) > 0) {
+                if ($result2->num_rows === 1) {
+                    $resultIndicator = false;
+                    $row = mysqli_fetch_assoc($result2);
+                    //Unsure why this was causing an issue but pid was not coming back as an integer, so I have cast it manually
+                    if ($row !== null && (int)$row['pid'] === $pid && $row['cid'] === $cid && $row['updated'] !== null) {
+                        $date = DateTime::createFromFormat('Y-m-d H:i:s', $row['updated']);
+                        $formattedDate = $date->getTimestamp();
+                        if ($formattedDate >= $timestamp) {
+                            $resultIndicator = true;
+                        }
+                        if($resultIndicator) {
+                            $JSON = "{\"success\" : true, \"cid\" : " . $cid . "}";
+                            echo $JSON;
+                            $status = 201;
+                        }else {
+                            //status if conversation has not been updated
+                            $JSON = "{\"success\" : false,\"error\" : \"Record not updated.\"}";
+                            echo $JSON;
+                            $status = 500;
+                        }
+                    }else {
+                        //status if record does not match
+                        $JSON = "{\"success\" : false, \"error\" : \"Record Does Not Match Expected Result.\"}";
+                        $status = 500;
+                        echo $JSON;
+                    }
+                }else {
+                    //status if multiple records are found
+                    $JSON = "{\"success\" : false, \"error\" : \"Multiple Conversations Found.\"}";
+                    $status = 500;
+                    echo $JSON;
+                }
             } else {
-                //error incase the conversation was not created
+                //error incase the conversation was not found
+                $JSON = "{\"success\" : false, \"error\" : \"No Conversations Found.\"}";
                 $status = 500;
+                echo $JSON;
             }
         } else {
-            $JSON = "{\"success\" : false,
-                      \"error\" : \"Body Data Missing\"}";
+            $JSON = "{\"success\" : false,\"error\" : \"Body Data Missing\"}";
             echo $JSON;
             $status = 400;
         }
-        //Free memory from output
-        mysqli_free_result($result);
         http_response_code($status);
     }
 }

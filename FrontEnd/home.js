@@ -17,10 +17,21 @@ window.addEventListener("load", function (evt) {
         creationWindow.style.display = "block";
     }
     
+    // Open conversation deletion window
+    function openDeletionWindow() {
+        deletionCid = event.target.parentElement.id;
+        deletionWindow.style.display = "block";
+    }
+    
     // Close conversation creation window
     function closeCreationWindow() {
         creationWindow.style.display = "none";
         creationHint.style.display = "none";
+    }
+    
+    // Close conversation deletion window
+    function closeDeletionWindow() {
+        deletionWindow.style.display = "none";
     }
     
     // Close all pop up windows
@@ -48,7 +59,6 @@ window.addEventListener("load", function (evt) {
                 });
 
                 if (!listConversationResponse.ok) {
-                    console.log('test');
                     const errorMessage = await listConversationResponse.text();
                     throw new Error(errorMessage);
                 }
@@ -82,7 +92,7 @@ window.addEventListener("load", function (evt) {
 
                     const deleteConversationButtons = document.querySelectorAll('.delete-conversation-button');
                     deleteConversationButtons.forEach(button => {
-                        button.addEventListener('click', handleDeleteConversationButton);
+                        button.addEventListener('click', openDeletionWindow);
                     });
                 } else {
                     let bodyElement = document.createElement('div');
@@ -98,20 +108,22 @@ window.addEventListener("load", function (evt) {
         }
     }
     
-    async function handleDeleteConversationButton() {
-        const id = event.target.parentElement.id;
-        if (id != null && id !== "") {
+    async function deleteConversation() {
+        event.preventDefault(); // Prevent default form submission
+        if (deletionCid != null && deletionCid !== "") {
             try {
-                const deletionResponse = await fetch(`https://fgr11.brighton.domains/testing/guidegpt/api.php/home?pid=${pid}&cid=${id}`, {
-                    method: 'GET'
+                const deletionResponse = await fetch(`https://fgr11.brighton.domains/testing/guidegpt/api.php/home?pid=${pid}&cid=${deletionCid}`, {
+                    method: 'DELETE'
                 });
                 const deletionData = await deletionResponse.json();
                 
                 if(deletionData.success) {
+                    deletionCid = "";
+                    deletionWindow.style.display = "none";
                     getConversations();
                 }
             } catch (error) {
-                console.error('Error fetching data:', error);
+                console.error('Error fetching data:', error.message);
             }
         }else {
             alert("Unable to retrieve session ID or conversation ID.");
@@ -228,7 +240,8 @@ window.addEventListener("load", function (evt) {
         }
     };
     
-    const pid = sessionStorage.getItem('sessionId');
+    var deletionCid = "";
+    const pid = parseInt(sessionStorage.getItem('sessionId'));
     const conversationList = document.querySelector("#conversationList");
     const icon = document.querySelector('.icon');
     const menuButtons = document.querySelector('.menuButtons');
@@ -236,13 +249,18 @@ window.addEventListener("load", function (evt) {
     const createConvoButton = document.querySelector("#createConvo");
     const creationWindow = document.querySelector("#creationWindow");
     const creationWindowCloseButton = document.querySelector("#creationWindowClose");
-    const creationForm = document.querySelector("#conversationForm");
+    const creationForm = document.querySelector("#creationForm");
+    const deletionWindow = document.querySelector("#deletionWindow");
+    const deletionWindowCloseButton = document.querySelector("#deletionWindowClose");
+    const deletionForm = document.querySelector("#deletionForm");
     
     getConversations();
     icon.addEventListener('click', toggleMenuButtons);
     logOutButton.addEventListener ('click', logOut);
     createConvoButton.addEventListener ('click', openCreationWindow);
     creationWindowCloseButton.addEventListener ('click', closeCreationWindow);
-    window.addEventListener('click', closeWindows);
     creationForm.addEventListener ('submit', handleCreationSubmit);
+    deletionWindowCloseButton.addEventListener ('click', closeDeletionWindow);
+    deletionForm.addEventListener ('submit', deleteConversation);
+    window.addEventListener('click', closeWindows);
 });
