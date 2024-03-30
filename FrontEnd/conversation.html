@@ -8,9 +8,10 @@
     <link rel="stylesheet" href="normalize.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Strait">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <script src="home.js"></script>
+    <script src="conversation.js"></script>
 </head>
 <body>
+    <div class="container">
         <header>
             <nav class="menu menuBars"><!--The primary navigation for the page -->
 	        <h3>GuideGPT</h3>
@@ -29,17 +30,14 @@
         </header>
         <hr>
         <main>
-            <div id="chat-container" class="conversation">
-                <h4 class="title">Conversation Title</h4>
-                <!-- Example user message -->
-                <div class="message user-message">Hello, how can I help you?</div>
-                <!-- Example bot message -->
-                <div class="message bot-message">Hi there! I'm here to assist you.</div>
+            <h4 class="title"></h4>
+            <div id="chatList">
             </div>
             <form id="message-form" class="input-form">
                 <input type="text" id="user-input" placeholder="Type your message...">
                 <button type="submit" id="send-button"><i class="fas fa-paper-plane"></i></button>
             </form>
         </main>
+    </div>
 </body>
 </html>
