@@ -2,81 +2,70 @@
 Base Styles for all screen widths
 -----------------------------------------------------------------------------*/
 
-html,body { height:80%; }
+html,body { 
+    height:80%;
+}
 
 body {
-  background-color: #FFF;
-  font-family: Verdana, "Geneva", sans-serif;
-  color: #333;
-  font-size: 1rem;
-  display: flex;
-  flex-direction: column;
-  min-height: 100%;
+    background-color: #FFF;
+    font-family: Verdana, "Geneva", sans-serif;
+    color: #333;
+    font-size: 1rem;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
 }
 
 #wrapper {
-  max-width:100%;
-  margin-right: auto;
-  margin-left: auto;
-  background-color: #FFF;
-  padding-right: 1rem;
-  padding-left: 1rem;
-}
-
-main  {
-}
-article	{
-}
-aside	{
-}
-footer {
-}
-header {
-}
-nav{
+    max-width:100%;
+    margin-right: auto;
+    margin-left: auto;
+    background-color: #FFF;
+    padding-right: 1rem;
+    padding-left: 1rem;
 }
 
 .menu {
-  overflow: hidden;
-  background-color: #333;
-  position: -webkit-sticky; /* For Safari */
-  position: sticky;
-  top: 0;
-  padding: 1.2rem 0;
+    overflow: hidden;
+    background-color: #333;
+    position: -webkit-sticky; /* For Safari */
+    position: sticky;
+    top: 0;
+    padding: 1.2rem 0;
 }
 
 .menu h3 {
-color:#fff;
-margin: 0;
-padding-left: 1.5rem;
+    color:#fff;
+    margin: 0;
+    padding-left: 1.5rem;
 }
 
-.menu a:hover{
-  background-color: #fff;
-  color: black;
+.menu a:hover {
+    background-color: #fff;
+    color: black;
 }
 
 .menu a:hover .menuBars{
-  color: #00bf45;
+    color: #00bf45;
 }
 
 .menu a.icon {
-  background: #00bf45;
-  display: block;
-  position: absolute;
-  right: 0;
-  top: 0;
-  padding: 1.5rem 1.5rem;
-  float: right;
+    background: #00bf45;
+    display: block;
+    position: absolute;
+    right: 0;
+    top: 0;
+    padding: 1.5rem 1.5rem;
+    float: right;
 }
 
 .menu a.icon:hover {
-  background-color: #fff;
-  color: black;
+    background-color: #fff;
+    color: black;
 }
 
 .menuBars {
-  color: #fff;
+    color: #fff;
 }
 
 .menu .menuButtons {
@@ -84,53 +73,107 @@ padding-left: 1.5rem;
 }
 
 .menuButtons.open {
-  display: block;
+    display: block;
 }
 
 .menu ul {
-  padding: 0;
-  margin: 1rem 0 0 0;
-  border-top-color: #FFF;
+    padding: 0;
+    margin: 1rem 0 0 0;
+    border-top-color: #FFF;
 }
 
 .menu li {
-  display: block; /*display in a vertical column*/
-  padding-right: 1.5rem;
+    display: block; /*display in a vertical column*/
+    padding-right: 1.5rem;
 }
 
 .menuButton {
-  display: block;
-  color: #fff;
-  background-color: #333;
-  text-decoration: none;
-  padding: 1rem 1rem;
-  font-size: 1.5rem;
-  display: inline-block;
-  border: none;
-  text-align: center;
-  margin-top: 1rem;
-  cursor: pointer;
-  border-radius: 1rem;
-  transition-duration: 0.4s;
+    display: block;
+    color: #fff;
+    background-color: #333;
+    text-decoration: none;
+    padding: 1rem 1rem;
+    font-size: 1.5rem;
+    display: inline-block;
+    border: none;
+    text-align: center;
+    margin-top: 1rem;
+    cursor: pointer;
+    border-radius: 1rem;
+    transition-duration: 0.4s;
 }
 
 .menuButton:hover {
-background-color: #fff;
-color: black;
+    background-color: #fff;
+    color: black;
 }
 
 main {
-  display: flex !important;
-  flex-direction: column;
-  min-height: 100%;
+    display: flex !important;
+    flex-direction: column;
+    min-height: 100%;
 }
 
 hr {
-  border: 0.15rem
-  solid #00bf45;
-  margin: 0;
-  display: block;
-  width: 100%;
+    border: 0.15rem
+    solid #00bf45;
+    margin: 0;
+    display: block;
+    width: 100%;
+}
+
+/*Divisions for login SPA----------------------------------------------------*/
+.signInBody {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+}
+
+.signInContainer {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 300px;
+}
+
+.form {
+    display: none;
+}
+
+.form.active {
+    display: block;
+}
+
+.form input[type="text"],
+.form input[type="password"],
+.form input[type="email"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.form input[type="submit"] {
+    width: 100%;
+    background-color: #00bf45;
+    color: #fff;
+    border: none;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.switch-link {
+    text-decoration: underline;
+    cursor: pointer;
 }
 
 /*Classes for home page use----------------------------------------------------*/
@@ -163,185 +206,154 @@ hr {
 }
 
 .conversation {
-  position: relative;
-  border: 0.1rem solid #ccc;
-  border-radius: 0.5rem;
-  padding: 1rem;
-  margin: 1rem 1rem;
+    position: relative;
+    border: 0.1rem solid #ccc;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin: 1rem 1rem;
 }
 
 .conversation-title {
-  margin: 0;
+    margin: 0;
 }
 
 .delete-conversation-button {
-  background-color: #F00;
-  color: white;
-  border: none;
-  border-radius: 0.5rem;
-  padding: 0.3rem 1rem;
-  cursor: pointer;
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
+    background-color: #F00;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.3rem 1rem;
+    cursor: pointer;
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
 }
 
 .chat-button {
-  background-color: #00bf45;
-  color: white;
-  border: none;
-  border-radius: 0.5rem;
-  padding: 0.3rem 1rem;
-  cursor: pointer;
-  position: absolute;
-  top: 0.5rem; 
-  right: 13rem;
-}
-
-/*Divisions for login SPA----------------------------------------------------*/
-.signInBody {
-    font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-color: #f0f0f0;
-}
-
-.signInContainer {
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  width: 300px;
-}
-
-.form {
-  display: none;
-}
-
-.form.active {
-  display: block;
-}
-
-.form input[type="text"],
-.form input[type="password"],
-.form input[type="email"] {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-}
-
-.form input[type="submit"] {
-  width: 100%;
-  background-color: #00bf45;
-  color: #fff;
-  border: none;
-  padding: 10px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.switch-link {
-  text-decoration: underline;
-  cursor: pointer;
+    background-color: #00bf45;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.3rem 1rem;
+    cursor: pointer;
+    position: absolute;
+    top: 0.5rem; 
+    right: 13rem;
 }
 
 /*Divisions for conversations----------------------------------------------------*/
 #chat-container {
-  flex-grow: 1;
-  padding: 10px;
+    flex-grow: 1;
+    padding: 10px;
 }
 
 .input-form {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 90%;
-  background-color: #f9f9f9;
-  padding: 1rem 1rem 1rem 1rem;
-  display: flex;
-  align-items: center;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 90%;
+    padding: 1rem 1rem 1rem 1rem;
+    display: flex;
+    align-items: center;
 }
 
 .input-form input[type="text"] {
-  flex: 1;
-  padding: 10px;
-  border-radius: 20px;
-  border: 1px solid #ccc;
-  outline: none;
+    flex: 1;
+    padding: 10px;
+    border-radius: 20px;
+    border: 1px solid #ccc;
+    outline: none;
 }
 
-.input-form button {
-  background-color: #00bf45;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  margin-left: 10px;
-  cursor: pointer;
+.send-button {
+    background-color: #00bf45;
+    color: white;
+    border: solid;
+    border-radius: 50%;
+    border-width: 2px;
+    border-color: #00bf45;
+    width: 40px;
+    height: 40px;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+.send-button:hover {
+    background-color: #fff;
+}
+
+.send-button:hover img {
+    filter: brightness(1) invert(0);
+}
+
+.send-button img {
+    filter: brightness(0) invert(1);
+    transform: translate(-2%, 10%);
+    max-width: 100%;
+    max-height: 100%;
 }
 
 .user-message {
-  background-color: #e2f7cb; /* Light green background */
-  color: #333; /* Dark text color */
-  padding: 10px;
-  margin-bottom: 5px;
-  border-radius: 10px;
-  max-width: 70%; /* Adjust as needed */
-  align-self: flex-start; /* Align message to the left */
+    background-color: #7dabf5;
+    color: #333; /* Dark text color */
+    padding: 10px;
+    margin-bottom: 5px;
+    margin-left: 2rem;
+    border-radius: 10px;
+    max-width: 70%; /* Adjust as needed */
+    align-self: flex-start; /* Align message to the left */
 }
 
 /* Bot message style */
-.bot-message {
-  background-color: #d3d3d3; /* Light gray background */
-  color: #333; /* Dark text color */
-  padding: 10px;
-  margin-bottom: 5px;
-  border-radius: 10px;
-  max-width: 70%; /* Adjust as needed */
-  align-self: flex-end; /* Align message to the right */
+.assistant-message {
+    background-color: #00bf75; /* Light gray background */
+    color: #333; /* Dark text color */
+    padding: 10px;
+    margin-bottom: 5px;
+    margin-left: 2rem;
+    border-radius: 10px;
+    max-width: 70%; /* Adjust as needed */
+    display: flex;
+    align-self: flex-end; /* Align message to the left */
+}
+
+.assistant-message img {
+    mix-blend-mode: multiply;
 }
 
 /*headings------------------------------------------------------------------- */
 
 h1	{
-  font-family: 'Strait', sans-serif;
-  color: #00bf45;
-  font-size: 3rem;
-  line-height: 2rem;
+    font-family: 'Strait', sans-serif;
+    color: #00bf45;
+    font-size: 3rem;
+    line-height: 2rem;
 }
 
 h2	{
 }
 
 h3 	{
-  font-family: Verdana, 'Strait', sans-serif;
-  font-size: 1.5rem;
-  line-height: 1.7rem;
+    font-family: Verdana, 'Strait', sans-serif;
+    font-size: 1.5rem;
+    line-height: 1.7rem;
 }
 
 h4 	{
-  font-family: Verdana, 'Strait', sans-serif;
-  font-size: 1.5rem;
-  line-height: 1.7rem;
-  text-align: center;
+    font-family: Verdana, 'Strait', sans-serif;
+    font-size: 1.5rem;
+    line-height: 1.7rem;
+    text-align: center;
 }
 
 /*lists---------------------------------------------------------------------- */
 
 ul	{
-  font-size:1rem;
-  line-height: 1.5;
-  margin: 1rem 0 1rem 0;
-  text-indent: 0rem;
-  text-align: right;
+    font-size:1rem;
+    line-height: 1.5;
+    margin: 1rem 0 1rem 0;
+    text-indent: 0rem;
+    text-align: right;
 }
 li	{
 }
@@ -372,19 +384,20 @@ time	{
 /*960 px* - tablet landscape orientation and above - 3 columns*/
 
 @media screen and (min-width: 60em) {
-  .card {
-      width: 33.33%;
-  }
+    .card {
+        width: 33.33%;
+    }
 }
 
 /*anchors--------------------------------------------------------------------- */
 
 a:link, a:visited, a:active	{
-color: #fff;
+    color: #fff;
 }
+
 a:hover {
-  color: #428bca;
-  text-decoration: none;
+    color: #428bca;
+    text-decoration: none;
 }
 
 /*------------------------------------------------------------------------------
@@ -404,55 +417,55 @@ Small Screen, Vertical
 -----------------------------------------------------------------------------*/
 
 #wrapper {
-  display: grid;
-  grid-gap: 2rem;
-  grid-template-areas:
-      "banner"
-      "menu"
-      "nav"
-      "table"
-      "main"
-      "aside"
-      "footer";
+    display: grid;
+    grid-gap: 2rem;
+    grid-template-areas:
+        "banner"
+        "menu"
+        "nav"
+        "table"
+        "main"
+        "aside"
+        "footer";
 }
 
 @media (max-width: 35em) {
-  .menu {
-      overflow: hidden;
-      background-color: #333;
-      position: -webkit-sticky; /* For Safari */
-      position: sticky;
-      top: 0;
-      padding: 1.2rem 1.5rem;
-  }
+    .menu {
+        overflow: hidden;
+        background-color: #333;
+        position: -webkit-sticky; /* For Safari */
+        position: sticky;
+        top: 0;
+        padding: 1.2rem 1.5rem;
+    }
   
-  .menu .menuButtons {
-      display: none;
-  }
+    .menu .menuButtons {
+        display: none;
+    }
 
-  .menu a.icon {
-      background: #00bf45;
-      display: block;
-      position: absolute;
-      right: 0;
-      top: 0;
-      padding: 1.5rem 1.5rem;
-  }
+    .menu a.icon {
+        background: #00bf45;
+        display: block;
+        position: absolute;
+        right: 0;
+        top: 0;
+        padding: 1.5rem 1.5rem;
+    }
 
-  .menu a:hover {
-      background-color: #fff;
-      color: black;
-  }
+    .menu a:hover {
+        background-color: #fff;
+        color: black;
+    }
 
-  .menu h3 {
-      color:#fff;
-      margin: 0;
-  }
+    .menu h3 {
+        color:#fff;
+        margin: 0;
+    }
 
-  .menu ul {
-      padding-inline-start: 0.25rem;
-      margin: 1rem 0 1rem 0;
-  }
+    .menu ul {
+        padding-inline-start: 0.25rem;
+        margin: 1rem 0 1rem 0;
+    }
 }
 
 
@@ -461,15 +474,15 @@ Tablet/landscape
 -----------------------------------------------------------------------------*/
 
 @media (min-width: 50em) {
-  #wrapper {
-      grid-template-columns: 3fr 6fr;
-      grid-template-areas: 
-          "banner  banner"
-          "menu  menu"
-          "nav  table"
-          "aside  main"
-          "footer  footer";
-  }
+    #wrapper {
+        grid-template-columns: 3fr 6fr;
+        grid-template-areas: 
+            "banner  banner"
+            "menu  menu"
+            "nav  table"
+            "aside  main"
+            "footer  footer";
+    }
 }
 
 /*------------------------------------------------------------------------------
@@ -477,15 +490,16 @@ Widescreen
 -----------------------------------------------------------------------------*/
 
 @media (min-width: 60em) {
-  #wrapper {
-      grid-template-columns: 1fr 7fr 1fr;
-      grid-template-areas: 
-          "banner  banner  banner"
-          "menu  menu  menu"
-          "nav  table  aside"
-          "nav  main  aside"
-          "footer  footer  footer";
-  }
+    #wrapper {
+        grid-template-columns: 1fr 7fr 1fr;
+        grid-template-areas: 
+            "banner  banner  banner"
+            "menu  menu  menu"
+            "nav  table  aside"
+            "nav  main  aside"
+            "footer  footer  footer";
+    }
 }
+
 @media (min-width: 50em) {
 }
